@@ -18,6 +18,7 @@ type Request struct {
 
 // NewRequest creates a request for the specified method.
 func NewRequest(method string) *Request {
+	method = "/2.2" + method
 	return &Request{
 		httpMethod: http.MethodGet,
 		method:     method,
@@ -42,7 +43,7 @@ func (r *Request) Do() (Value, error) {
 	req, err := http.NewRequest(
 		r.httpMethod,
 		fmt.Sprintf(
-			"https://api.stackexchange.com/2.2%s?%s",
+			"https://api.stackexchange.com%s?%s",
 			r.method,
 			r.params.Encode(),
 		),
@@ -66,14 +67,18 @@ func (r *Request) Do() (Value, error) {
 	return v, nil
 }
 
+// Param specifies a query string parameter
+func (r *Request) Param(key, value string) *Request {
+	r.params.Add(key, value)
+	return r
+}
+
 // Site specifies the site that the request should be directed to.
 func (r *Request) Site(site string) *Request {
-	r.params.Add("site", site)
-	return r
+	return r.Param("site", site)
 }
 
 // Sort sets the sorting order for the items in the response.
 func (r *Request) Sort(sort string) *Request {
-	r.params.Add("sort", sort)
-	return r
+	return r.Param("sort", sort)
 }
